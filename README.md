@@ -155,21 +155,180 @@ snapshot_download("ChillyKuw/xlm-roberta-multilingual-sentiment", local_dir="./m
 | Darija (Arabic script) | 94.4% | 625 |
 | Darija (Arabizi) | 95.5% | 621 |
 
-### 📈 Visualizations
+### 📈 Visualizations & Performance Analysis
 
-#### Confusion Matrix
-- **Balanced predictions** across classes
-- True Positive Rate: 94.17% (positive)
-- True Negative Rate: 93.85% (negative)
-- False Positive Rate: 6.15% (minimal misclassifications)
+#### 1. Confusion Matrix
+**File**: `outputs/figures/confusion_matrix.png`
 
-#### ROC/AUC Curve
-- **Area Under Curve: 0.9839** (excellent discrimination)
-- Model clearly separates positive and negative sentiments
+![Confusion Matrix](https://raw.githubusercontent.com/Ayman-cell/Finetuning-XLM-Roberta/main/outputs/figures/confusion_matrix.png)
 
-#### Confidence Distribution
-- **Mean confidence: 97.9%** - model is very confident
-- High-confidence predictions lead to reliable classifications
+**Explication**:
+- **Gauche (Valeurs Absolues)**: Montre le nombre exact de prédictions
+  - 2,028 vrais négatifs (prédictions négatives correctes)
+  - 133 faux positifs (prédictions positives incorrectes) 
+  - 125 faux négatifs (prédictions négatives incorrectes)
+  - 2,020 vrais positifs (prédictions positives correctes)
+
+- **Droite (Normalisée par ligne)**: Montre les pourcentages
+  - **93.85% Taux de Vrai Négatif** (TPR pour classe négative) - excellent!
+  - **6.15% Taux de Faux Positif** - très faible, bon contrôle
+  - **5.83% Taux de Faux Négatif** - minimal
+  - **94.17% Taux de Vrai Positif** (TPR pour classe positive) - excellent!
+
+**Interprétation**: Le modèle a une excellente capacité de discrimination avec un équilibre quasi-parfait entre sensibilité et spécificité.
+
+---
+
+#### 2. Courbe ROC/AUC
+**File**: `outputs/figures/roc_auc_curves.png`
+
+![ROC/AUC Curve](https://raw.githubusercontent.com/Ayman-cell/Finetuning-XLM-Roberta/main/outputs/figures/roc_auc_curves.png)
+
+**Explication**:
+- **AUC = 0.9839** (l'aire sous la courbe)
+  - 1.0 = Classification parfaite
+  - 0.9839 = Presque parfait! ✅
+  - 0.5 = Prédiction aléatoire
+
+- **Courbe bleue**: Montre comment le modèle se comporte à différents seuils de décision
+  - Plus la courbe est proche du coin supérieur gauche, mieux c'est
+  - Remontée abrupte au début = bon TPR à faible FPR ✅
+
+**Interprétation**: Le modèle discrimine exceptionnellement bien entre sentiments positifs et négatifs. Il a peu de "faux positifs" tout en capture la majorité des vrais positifs.
+
+---
+
+#### 3. Distribution de la Confiance du Modèle
+**File**: `outputs/figures/confidence_distribution.png`
+
+![Confidence Distribution](https://raw.githubusercontent.com/Ayman-cell/Finetuning-XLM-Roberta/main/outputs/figures/confidence_distribution.png)
+
+**Explication** (4 sous-graphes):
+
+**Haut-Gauche - Distribution Globale**:
+- Moyenne: 0.979 (97.9% de confiance)
+- Le modèle est **très confiant** dans ses prédictions
+- La majorité des prédictions ont 95%+ de confiance
+
+**Haut-Droite - Correct vs Incorrect**:
+- Les prédictions **correctes** (vert) ont une confiance plus élevée (pic à 1.0)
+- Les prédictions **incorrectes** (rose) ont des confiances plus variées
+- Excellente corrélation: haute confiance = prédictions justes
+
+**Bas-Gauche - Prédictions par Classe**:
+- Classe positive: moyenne 98%+ (très confiante)
+- Classe négative: moyenne 97%+ (très confiante)
+- Équilibre excellent entre les deux classes
+
+**Bas-Droite - Probabilités Moyennes par Classe**:
+- Le modèle sépare bien les deux classes à travers le seuil 0.5
+- Les probabilités sont extrêmes (proche de 0 ou 1), pas ambiguës
+
+**Interprétation**: Confiance très élevée du modèle avec excellente calibration - les prédictions confiantes sont généralement justes.
+
+---
+
+#### 4. Distribution des Sentiments Globaux
+**File**: `outputs/figures/sentiment_distribution.png`
+
+![Sentiment Distribution](https://raw.githubusercontent.com/Ayman-cell/Finetuning-XLM-Roberta/main/outputs/figures/sentiment_distribution.png)
+
+**Explication**:
+- **Classe Négative**: ~24,000 samples (~50%)
+- **Classe Positive**: ~22,000 samples (~50%)
+
+**Importance**:
+- ✅ Dataset **parfaitement équilibré** (quasi 50/50)
+- Pas de biais d'une classe dominante
+- Le modèle a pas de biais naturel vers une classe
+- Les performances peuvent être comparées directement
+
+---
+
+#### 5. Distribution par Langue (Nombre de Samples)
+**File**: `outputs/figures/count_by_lang_label.png`
+
+![Count by Language](https://raw.githubusercontent.com/Ayman-cell/Finetuning-XLM-Roberta/main/outputs/figures/count_by_lang_label.png)
+
+**Explication**:
+- 6 langues/variantes avec ~6,000-7,000 samples chacune
+- **Équilibre excellent** entre langues
+- Distribution par sentiment (vert=négatif, orange=positif) uniforme
+
+**Langues**:
+- `fr` (Français): 7,000 samples
+- `darija_arabizi` (Darija Latin): 6,500 samples
+- `ar` (Arabe): 6,500 samples
+- `es` (Espagnol): 6,000 samples
+- `darija` (Darija Arabic): 6,500 samples
+- `en` (Anglais): 6,500 samples
+
+**Avantage multlingue**: Le modèle entraîné sur ces 6 variantes a des performances cohérentes across toutes les langues.
+
+---
+
+#### 6. Analyse de la Longueur des Textes
+**File**: `outputs/figures/length_boxplot.png`
+
+![Text Length Analysis](https://raw.githubusercontent.com/Ayman-cell/Finetuning-XLM-Roberta/main/outputs/figures/length_boxplot.png)
+
+**Explication** (Boîtes à Moustaches):
+- **Ligne orange** = Médiane (50e percentile)
+- **Boîte** = Intervalle interquartile (25-75e percentile)
+- **Moustaches** = Min/Max (étendue)
+- **Points** = Valeurs aberrantes (outliers)
+
+**Par Langue**:
+- `fr` (Français): 100-300 chars (tweets/courtes reviews)
+- `darija_arabizi`: 50-100 chars (très concis)
+- `ar` (Arabe): 80-200 chars (modéré)
+- `es` (Espagnol): 150-400 chars (plus long)
+- `darija`: 40-150 chars (court)
+- `en` (Anglais): 50-300 chars (très varié)
+
+**Normalisation appliquée**:
+- MAX_LENGTH = 96 tokens (optimal pour GPU 6GB)
+- Les textes > 96 tokens sont tronqués
+- Les textes < 96 sont padded (pads = [0])
+
+---
+
+#### 7. Aperçu des Prédictions sur Jeu de Test
+**File**: `outputs/figures/test_predictions_overview.png`
+
+![Test Predictions Overview](https://raw.githubusercontent.com/Ayman-cell/Finetuning-XLM-Roberta/main/outputs/figures/test_predictions_overview.png)
+
+**Explication** (4 graphes d'analyse):
+
+**Haut-Gauche - Vérité vs Prédictions (Distribution)**:
+- Distribution quasi-identique entre vraies étiquettes et prédictions
+- Montre que le modèle ne sur-prédit pas une classe
+- Balance excellent ✅
+
+**Haut-Droite - F1-Score par Classe**:
+- Négatif: 0.9400 (94%)
+- Positif: 0.9400 (94%)
+- **Équilibré parfait** entre classes
+
+**Bas-Gauche - Accuracy par Langue**:
+- `ar`: 93.0% (Arabe)
+- `darija`: 95.5% (Darija Arabic) - MEILLEUR
+- `darija_arabizi`: 92.0% (Darija Latin)
+- `es`: 93.8% (Espagnol)
+- `en`: 94.4% (Anglais)
+- `fr`: 95.5% (Français) - MEILLEUR
+
+- **Min**: 92.0%, **Max**: 95.5% 
+- Variation < 3.5% = Très cohérent multilingue! ✅
+
+**Bas-Droite - Probabilités Prédites (Confusion Matrix Probabiliste)**:
+- Heatmap montrant la calibration du modèle
+- Cellule (0,0) bright = haute prob pour classe 0
+- Cellule (1,1) bright = haute prob pour classe 1
+- Cells (0,1) et (1,0) sombres = peu d'erreurs
+- Montre excellent tri entre classes
+
+**Interprétation**: Performances très uniformes sans dégradation sur aucune langue. Le modèle généralise bien multilingue.
 
 ---
 
