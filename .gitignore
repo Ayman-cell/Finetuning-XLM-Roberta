@@ -4,10 +4,14 @@ data/processed/*.parquet
 data/processed/*.csv
 !data/processed/.gitkeep
 
-# Models & Training
+# Models & Training (hosted on Hugging Face)
 models/
 checkpoints/
 wandb/
+
+# Hugging Face upload scripts (credentials)
+upload_to_huggingface.py
+upload_to_huggingface.ps1
 
 # Outputs
 outputs/**/*.png

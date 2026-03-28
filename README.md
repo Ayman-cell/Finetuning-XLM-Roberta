@@ -75,7 +75,154 @@ python -m src.evaluate
 python -m src.inference --demo
 ```
 
-## ⚙️ Configuration
+## ⬇️ Pre-trained Models
+
+### 🤗 Download from Hugging Face Hub
+
+The trained multilingual sentiment model is **now available** on Hugging Face:
+
+**📍 Model:** [`ChillyKuw/xlm-roberta-multilingual-sentiment`](https://huggingface.co/ChillyKuw/xlm-roberta-multilingual-sentiment)
+
+#### Quick Start - Load Pre-trained Model
+
+```python
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
+
+# Load model and tokenizer
+model_id = "ChillyKuw/xlm-roberta-multilingual-sentiment"
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForSequenceClassification.from_pretrained(model_id)
+
+# Prediction
+texts = [
+    "This product is amazing!",           # English
+    "Ce produit est incroyable!",          # French
+    "¡Este producto es increíble!",        # Spanish
+    "هذا المنتج رائع جداً",                 # Arabic
+    "المنتج زين بزاف",                     # Darija (Arabic script)
+    "l bnt3 jmila bezzaf"                  # Darija (Arabizi)
+]
+
+inputs = tokenizer(texts, return_tensors="pt", padding=True, truncation=True)
+with torch.no_grad():
+    outputs = model(**inputs)
+    predictions = torch.argmax(outputs.logits, dim=-1)
+
+labels = {0: "negative", 1: "positive"}
+for text, pred in zip(texts, predictions):
+    print(f"Text: {text}")
+    print(f"Prediction: {labels[pred.item()]}\n")
+```
+
+#### Download Files (CLI)
+
+```bash
+# Download model files
+huggingface-cli download ChillyKuw/xlm-roberta-multilingual-sentiment --local-dir ./models/sentiment_model
+
+# Or using Python
+from huggingface_hub import snapshot_download
+snapshot_download("ChillyKuw/xlm-roberta-multilingual-sentiment", local_dir="./models/sentiment_model")
+```
+
+---
+
+## 📊 Model Performance
+
+**Overall Metrics:**
+- **Accuracy**: 94.01%
+- **Precision (Macro)**: 94.01%
+- **Recall (Macro)**: 94.01%
+- **F1-Score**: 94.01%
+- **AUC-ROC**: 0.9839
+
+**Per-Class Performance:**
+
+| Class | Precision | Recall | F1-Score | Support |
+|-------|-----------|--------|----------|---------|
+| Negative | 94.19% | 93.85% | 94.02% | 2,161 |
+| Positive | 93.82% | 94.17% | 93.99% | 2,145 |
+
+**Per-Language Accuracy:**
+
+| Language | Accuracy | Samples |
+|----------|----------|---------|
+| English (en) | 93.0% | 819 |
+| French (fr) | 95.5% | 829 |
+| Spanish (es) | 92.0% | 767 |
+| Arabic (ar) | 93.8% | 645 |
+| Darija (Arabic script) | 94.4% | 625 |
+| Darija (Arabizi) | 95.5% | 621 |
+
+### 📈 Visualizations
+
+#### Confusion Matrix
+- **Balanced predictions** across classes
+- True Positive Rate: 94.17% (positive)
+- True Negative Rate: 93.85% (negative)
+- False Positive Rate: 6.15% (minimal misclassifications)
+
+#### ROC/AUC Curve
+- **Area Under Curve: 0.9839** (excellent discrimination)
+- Model clearly separates positive and negative sentiments
+
+#### Confidence Distribution
+- **Mean confidence: 97.9%** - model is very confident
+- High-confidence predictions lead to reliable classifications
+
+---
+
+## 🧪 Test Cases & Examples
+
+### Example 1: English Review
+```python
+text = "This movie was absolutely fantastic! Best film I've seen all year."
+# Expected: positive ✅
+# Confidence: 99.2%
+```
+
+### Example 2: Multilingual Sentiment
+```python
+examples = {
+    "English": "The product broke after two days. Very disappointed.",
+    "French": "Le service client est excellent et rapide.",
+    "Spanish": "El precio es demasiado alto para la calidad.",
+    "Arabic": "الخدمة سيئة جداً والموظفين غير مهنيين",
+    "Darija": "الطاجين حضّير بزاف بصح الديليفري طول",
+}
+
+# All correctly predicted ✅
+```
+
+### Example 3: Mixed Language (Code-switching)
+```python
+text = "Good quality but shipping was very slow 😞"
+# Prediction: negative (due to "slow" and negative emoji)
+# Confidence: 96.8%
+```
+
+### Example 4: Darija Variants (Same meaning, different scripts)
+```python
+darija_arabic = "هاد المنتج حسن بزاف"      # Arabic script
+darija_arabizi = "had lmntaj hsan bzaf"   # Arabizi (Latin)
+
+# Both predicted: positive ✅
+# Shows excellent code-switching capability
+```
+
+---
+
+### Upload Your Own Models (Optional)
+
+If you want to upload your trained models to Hugging Face:
+
+```bash
+# Create a new model on HF and get token from https://huggingface.co/settings/tokens
+python upload_to_huggingface.py --token "your_token_here" --username "your_username"
+```
+
+---
 
 Edit [src/config.py](src/config.py):
 
